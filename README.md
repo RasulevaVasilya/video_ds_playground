@@ -1,139 +1,52 @@
-# 🎓 Video Data Science Playground
+# Video DS Playground — Выполнение заданий
 
-Учебный полигон для освоения обработки видео и аудио в задачах Data Science.
+## Обзор
 
-## Что это такое?
+Данный документ содержит отчёт о выполнении всех 8 заданий по курсу "Video Data Science Playground". Работа выполнена в среде GitHub Codespace с использованием Python 3.12.1.
 
-**Video DS Playground** — это модульный Python-фреймворк и набор заданий, которые позволяют последовательно освоить полный пайплайн обработки видео:
+## Выполненные задания
 
-```
-Облако → Видео → Аудио → Транскрибация → Диаризация → VAD → Метрики → Шумоподавление → Постобработка
-```
+| № | Задание | Результат |
+|---|---------|-----------|
+| 01 | Cloud Fetch | Видео загружено из локального хранилища |
+| 02 | Audio Extract | Аудио извлечено в WAV (16kHz, моно) |
+| 03 | Transcription | Транскрипция получена |
+| 04 | Speaker Diarization | Определён 1 спикер |
+| 05 | VAD | Доля речи: 18.7% |
+| 06 | Quality Metrics | SNR: 12.62 дБ |
+| 07 | Denoising | Улучшение SNR на 2.4 дБ |
+| 08 | Postprocessing | Текст очищен от галлюцинаций |
 
-Вы читаете задание, изучаете теорию, реализуете класс, запускаете пайплайн и получаете отчёт с метриками.
+## Результаты
 
----
+| Параметр | Значение |
+|----------|----------|
+| Транскрипция | "Все, давай сделаем это еще раз...." |
+| Количество спикеров | 1 |
+| SNR | 12.62 дБ |
+| Доля речи | 18.7% |
+| Улучшение SNR | 2.4 дБ |
 
-## 🚀 Быстрый старт
+## Проблемы и решения
 
-### 1. Установка
+1. **ModuleNotFoundError: No module named 'src'** — добавлен путь в PYTHONPATH
+2. **ffmpeg not found** — установлен ffmpeg
+3. **ImportError: cannot import name 'compute_snr'** — добавлена функция в metrics.py
+4. **ImportError: cannot import name 'SimpleDiarizerWrapper'** — добавлен класс в pyannote_wrapper.py
+5. **HF_TOKEN не найден** — создан токен на Hugging Face
+6. **403 Forbidden** — приняты условия использования моделей
+7. **too many values to unpack** — исправлен код в pyannote_wrapper.py
+8. **'dict object' has no attribute 'stoi'** — исправлен report_generator.py
+9. **CUDA device error** — заменено device: cuda на device: cpu
 
-```bash
-git clone https://github.com/your-org/video_ds_playground.git
-cd video_ds_playground
-
-# Рекомендуется Python 3.10+
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-
-pip install -r requirements.txt
-```
-
-### 2. Настройка окружения
-
-```bash
-cp .env.example .env
-# Откройте .env и заполните переменные (токен Nextcloud, HuggingFace и т.д.)
-```
-
-### 3. Запуск дефолтного пайплайна
-
-```bash
-python run.py --config config/default_pipeline.yaml --video /path/to/video.mp4
-```
-
-### 4. Сравнение моделей транскрибации
-
-```bash
-python src/experiments/compare_transcribers.py \
-  --models whisper-small,whisper-large-v3,wav2vec2 \
-  --video data/raw_videos/sample.mp4
-```
-
-### 5. Эксперимент: влияние шумоподавления
-
-```bash
-python src/experiments/denoise_impact.py \
-  --denoisers noisereduce,speechbrain \
-  --transcriber whisper-small \
-  --video data/raw_videos/noisy_sample.mp4
-```
-
----
-
-## 📚 Задания (порядок прохождения)
-
-| №  | Файл                              | Тема                                    |
-|----|-----------------------------------|-----------------------------------------|
-| 01 | [docs/tasks/01_cloud_fetch.md](docs/tasks/01_cloud_fetch.md)       | Загрузка видео из облака (Nextcloud/S3) |
-| 02 | [docs/tasks/02_audio_extract.md](docs/tasks/02_audio_extract.md)   | Извлечение аудио через ffmpeg           |
-| 03 | [docs/tasks/03_transcription.md](docs/tasks/03_transcription.md)   | Транскрибация и сравнение WER           |
-| 04 | [docs/tasks/04_speaker_diarization.md](docs/tasks/04_speaker_diarization.md) | Диаризация спикеров             |
-| 05 | [docs/tasks/05_vad.md](docs/tasks/05_vad.md)                       | Детекция голосовой активности (VAD)     |
-| 06 | [docs/tasks/06_quality_metrics.md](docs/tasks/06_quality_metrics.md) | Метрики качества речи                |
-| 07 | [docs/tasks/07_denoising.md](docs/tasks/07_denoising.md)           | Шумоподавление и его влияние на WER     |
-| 08 | [docs/tasks/08_postprocessing.md](docs/tasks/08_postprocessing.md) | Постобработка и удаление галлюцинаций  |
-
----
-
-## 🏗 Архитектура
-
-```
-src/
-├── core/
-│   ├── base.py           # Абстрактные классы Stage, ModelWrapper
-│   ├── pipeline.py       # Класс Pipeline — выполняет этапы
-│   ├── registry.py       # Реестр моделей и этапов
-│   └── cloud_client.py   # Адаптеры облачных хранилищ
-├── stages/               # Каждый этап — отдельный класс
-├── models/               # Обёртки конкретных моделей
-├── utils/                # Метрики, ffmpeg, постобработка, отчёты
-└── experiments/          # Скрипты для сравнения методов
-```
-
-Подробнее: [docs/architecture.md](docs/architecture.md)
-
-Как добавить свой этап: [docs/how_to_add_module.md](docs/how_to_add_module.md)
-
----
-
-## 🐳 Docker (рекомендуется)
-
-```bash
-docker build -t video-ds-playground .
-docker run --gpus all -v $(pwd)/data:/app/data video-ds-playground \
-  python run.py --config config/default_pipeline.yaml --video data/raw_videos/sample.mp4
-```
-
----
-
-## 📊 Пример отчёта
-
-После запуска эксперимента в папке `data/reports/` появится `report.html`:
-
-- Сводная таблица WER / время инференса / использование шумоподавления
-- Графики PESQ и STOI до/после фильтрации
-- Фрагменты транскрипции с подсвеченными галлюцинациями
-- Диаграмма диаризации спикеров по таймкодам
-
----
-
-## 🛠 Технологический стек
-
-| Задача                | Библиотеки |
-|-----------------------|-----------|
-| Облако                | `webdavclient3`, `boto3` |
-| Аудио из видео        | `ffmpeg-python` |
-| Транскрибация         | `openai-whisper`, `faster-whisper`, `transformers` |
-| Диаризация            | `pyannote.audio`, `simple_diarizer` |
-| VAD                   | `silero-vad`, `webrtcvad` |
-| Метрики качества      | `torchaudio`, `librosa`, `torchmetrics` |
-| Шумоподавление        | `noisereduce`, `speechbrain`, `demucs` |
-| Постобработка         | `spacy`, `clean-text`, `regex` |
-| Отчёты                | `pandas`, `matplotlib`, `jinja2`, `weasyprint` |
-
----
-
-## 📜 Лицензия
-
-MIT — используйте свободно в учебных и коммерческих проектах.
+## Структура проекта
+video_ds_playground/
+├── src/models/
+│ ├── silero_vad.py
+│ ├── pyannote_wrapper.py
+│ └── denoise_wrappers.py
+├── src/utils/
+│ ├── metrics.py
+│ └── report_generator.py
+└── data/reports/
+└── report_*.html
