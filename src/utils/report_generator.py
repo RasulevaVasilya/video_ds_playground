@@ -64,7 +64,8 @@ REPORT_TEMPLATE = """<!DOCTYPE html>
     <div class="metric-name">SNR</div>
   </div>
   {% endif %}
-  {% if metrics.pesq is not none %}
+  {% if metrics.pesq is defined and metrics.pesq is not none %}
+
   <div class="metric-card">
     <div class="metric-val">{{ "%.2f"|format(metrics.pesq) }}</div>
     <div class="metric-name">PESQ (MOS-LQO)</div>
